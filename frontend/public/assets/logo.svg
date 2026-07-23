@@ -1,0 +1,18 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mirra-mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#52f5d6" />
+      <stop offset="100%" stop-color="#0a9186" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="#0b0f14" />
+  <rect width="32" height="32" rx="9" fill="url(#mirra-mark)" fill-opacity="0.12" />
+  <path
+    d="M8 22V10.8c0-.44.36-.8.8-.8.28 0 .54.14.68.38L16 19l6.52-8.62c.14-.24.4-.38.68-.38.44 0 .8.36.8.8V22"
+    stroke="url(#mirra-mark)"
+    stroke-width="2.1"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+</svg>

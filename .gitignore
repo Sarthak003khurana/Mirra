@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Env
+.env
+
+# Models (downloaded, not versioned)
+models/
+voice-bot/models/
+
+# Databases
+*.db
+*.sqlite3
+
+# Uploads / generated media
+uploads/
+audio/*.wav
+data/*.pdf
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+.next/

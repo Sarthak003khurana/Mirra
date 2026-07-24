@@ -1,0 +1,19 @@
+# Core voice loop - all local, no third-party AI APIs
+faster-whisper==1.2.1
+piper-tts==1.5.0
+sounddevice==0.5.5
+numpy==2.2.6
+scipy==1.17.1
+websockets==16.1.1
+requests==2.34.2
+
+# Resume parsing (existing modules kept as-is)
+pdfplumber==0.11.9
+easyocr==1.7.2
+
+# Face analysis (existing eye-contact module kept as-is)
+mediapipe==0.10.11
+opencv-python==4.13.0.92
+
+pytest==8.3.4
+pytest-asyncio==0.25.0

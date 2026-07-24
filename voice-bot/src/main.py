@@ -62,17 +62,28 @@ async def main() -> None:
     manager = TurnManager(stt=stt, tts=tts, llm=llm, ws=ws, face_analyzer=face_analyzer)
 
     try:
-        transcript = await manager.run_interview(resume_context, num_questions=3)
+        if ws is not None:
+            # A backend interview session is live (created from the frontend
+            # dashboard) - let it drive question generation and scoring; this
+            # process just speaks each question with lip-synced audio and
+            # reports transcripts back. Requires MIRRA_SESSION_ID to match the
+            # session id shown in the frontend's /interview/{id} URL, and the
+            # session must already be started (POST .../sessions/{id}/start)
+            # so the first question exists before this loop starts listening.
+            logger.info("Connected to backend session %s - waiting for questions.", SESSION_ID)
+            await manager.run_networked_interview()
+        else:
+            transcript = await manager.run_interview(resume_context, num_questions=3)
 
-        report = "\n\n".join(
-            f"Question: {t['question']}\nAnswer: {t['answer']}" for t in transcript
-        )
-        verdict = await asyncio.to_thread(llm.final_verdict, report, manager.average_eye_score())
+            report = "\n\n".join(
+                f"Question: {t['question']}\nAnswer: {t['answer']}" for t in transcript
+            )
+            verdict = await asyncio.to_thread(llm.final_verdict, report, manager.average_eye_score())
 
-        logger.info("===== FINAL RESULT =====")
-        logger.info(verdict)
-        await asyncio.to_thread(tts.speak, "Here is your final result.")
-        await asyncio.to_thread(tts.speak, verdict)
+            logger.info("===== FINAL RESULT =====")
+            logger.info(verdict)
+            await asyncio.to_thread(tts.speak, "Here is your final result.")
+            await asyncio.to_thread(tts.speak, verdict)
     finally:
         if ws:
             await ws.close()

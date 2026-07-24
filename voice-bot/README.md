@@ -37,19 +37,35 @@ through your mic and speakers. If the backend isn't running, it falls back to
 standalone mode automatically (logged as a warning, not a crash). If no
 camera/mediapipe is available, eye-contact scoring is skipped the same way.
 
-## Run against the backend
+## Run against the backend (real interview, with avatar lip-sync)
 
-Start the backend first (`uvicorn app.main:app --reload` from `backend/`), then:
+In this mode the backend owns question generation and scoring
+(`backend/app/websocket/interview_handler.py`); this process just speaks each
+question with a real, audio-synced viseme schedule (so the browser avatar can
+lip-sync it) and reports the transcript back for scoring.
 
-```bash
-set BACKEND_WS_URL=ws://localhost:8000/ws/interview
-set MIRRA_SESSION_ID=<a session id>
-python -m src.main
-```
+1. Start the backend: `uvicorn app.main:app --reload` from `backend/`.
+2. In the frontend, upload a resume, click "Start interview with this
+   resume", and copy the session id from the resulting `/interview/<id>` URL.
+3. Connect the voice bot to that session **before** clicking "Start interview"
+   in the frontend (it needs to be in the room to catch the first question):
 
-Every turn (`question`, `transcript`, `face_metrics`, `session_complete`) is
-sent over `/ws/interview` as it happens, matching the event table in
-`CLAUDE.md`.
+   ```bash
+   set BACKEND_WS_URL=ws://localhost:8000/ws/interview
+   set MIRRA_SESSION_ID=<the session id from step 2>
+   python -m src.main
+   ```
+4. Click "Start interview" in the frontend. The voice bot receives the
+   `question` event, synthesizes it with Piper, and streams `tts_audio` +
+   `viseme_data` (an RMS-amplitude envelope of the actual audio, not a canned
+   animation) over the socket so the avatar's jaw/mouth morphs move in time
+   with real speech. It then records your mic answer, transcribes it with
+   Whisper, and sends the final `transcript` — which the backend scores and
+   uses to generate the next question, repeating for 5 questions before
+   auto-completing the session.
+
+If the backend/session isn't reachable, it logs a warning and falls back to
+the fully standalone loop above instead of crashing.
 
 ## Known environment issue
 

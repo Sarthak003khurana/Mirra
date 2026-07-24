@@ -6,6 +6,7 @@ from src.audio_capture import record_until_silence
 from src.llm_bridge import LLMBridge
 from src.stt_engine import STTEngine
 from src.tts_engine import TTSEngine
+from src.viseme_utils import build_viseme_frames, encode_wav_base64
 from src.websocket_client import VoiceBotWebSocketClient
 
 logger = logging.getLogger(__name__)
@@ -111,3 +112,55 @@ class TurnManager:
             await self.ws.send("session_complete", {"redirect_url": None})
 
         return transcript
+
+    # ------------------------------------------------------------------
+    # Networked mode: the backend (app/websocket/interview_handler.py) owns
+    # question generation and scoring. This loop just speaks each question
+    # the backend pushes - with a real, audio-synced viseme schedule so the
+    # browser avatar can lip-sync it - and reports the transcript back so the
+    # backend can score it and advance to the next question.
+    # ------------------------------------------------------------------
+
+    async def run_networked_interview(self) -> None:
+        if self.ws is None:
+            raise RuntimeError("run_networked_interview requires an attached WebSocket client")
+
+        while True:
+            frame = await self.ws.receive()
+            event = frame.get("event")
+            payload = frame.get("payload") or {}
+
+            if event == "question":
+                await self._speak_with_lipsync(payload.get("text", ""))
+                await self._listen_and_report()
+            elif event == "session_complete":
+                logger.info("Session complete.")
+                break
+
+    async def _speak_with_lipsync(self, text: str) -> None:
+        logger.info("Bot: %s", text)
+        audio = await asyncio.to_thread(self.tts.synthesize, text)
+
+        if audio.size == 0:
+            return
+
+        frames = build_viseme_frames(audio, self.tts.sample_rate)
+        await self.ws.send("tts_audio", {"audio_b64": encode_wav_base64(audio, self.tts.sample_rate), "format": "wav"})
+        await self.ws.send("viseme_data", {"frames": frames})
+
+        # The browser (avatar/frontend) plays the streamed audio and animates
+        # in sync with it, so don't also play it out of this process's speakers.
+
+    async def _listen_and_report(self) -> None:
+        if self.face_analyzer:
+            audio, eye_score = await asyncio.gather(
+                asyncio.to_thread(record_until_silence),
+                asyncio.to_thread(self.face_analyzer, 3),
+            )
+            await self.ws.send("face_metrics", {"confidence": eye_score, "eye_contact": eye_score, "posture": 0.7})
+        else:
+            audio = await asyncio.to_thread(record_until_silence)
+
+        text = await asyncio.to_thread(self.stt.transcribe_array, audio)
+        logger.info("Candidate: %s", text)
+        await self.ws.send("transcript", {"text": text, "is_final": True})

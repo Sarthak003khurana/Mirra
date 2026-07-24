@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useMorphTargets } from '../hooks/useMorphTargets'
+import { useMorphTargets } from '../../hooks/useMorphTargets'
 
 // Tuned so a full-amplitude frame (amp=1) opens the jaw noticeably but not
 // cartoonishly, with a touch of mouthFunnel to round the shape out.

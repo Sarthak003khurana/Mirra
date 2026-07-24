@@ -17,8 +17,19 @@ class Settings(BaseSettings):
     # Redis (used by later branches: sessions, celery)
     redis_url: str = "redis://localhost:6379"
 
-    # CORS
-    cors_origins: list[str] = ["http://localhost:5173"]
+    # CORS - frontend (5173), marketing (5174), avatar (5175)
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+    ]
+
+    # File storage
+    upload_dir: str = "./uploads"
+
+    # Local LLM (Ollama) for interview question generation
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1:8b"
 
 
 settings = Settings()

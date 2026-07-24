@@ -1,6 +1,6 @@
 import { useScrollAnimation } from '../hooks/useScrollAnimation.js'
 
-const APP_LOGIN_URL = 'https://app.mirra.local/login'
+const APP_LOGIN_URL = import.meta.env.VITE_APP_URL ? `${import.meta.env.VITE_APP_URL}/login` : 'http://localhost:5173/login'
 
 const TIERS = [
   {

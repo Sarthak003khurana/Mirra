@@ -1,12 +1,23 @@
 import { Suspense, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows, Environment } from '@react-three/drei'
+import AudioLipSync from './AudioLipSync'
 import AvatarModel from './AvatarModel'
 import CameraRig from './CameraRig'
 import Expressions from './Expressions'
 import LipSync from './LipSync'
 
-export default function AvatarScene({ modelUrl, visemeSchedule = [], mood = 'neutral', idleClipName }) {
+/** `audioLipSync` is the object returned by useVisemeData - when
+ * `audioLipSync.isActive` (a real session is joined), lip-sync is driven live
+ * from the voice-bot's audio + amplitude envelope via AudioLipSync instead of
+ * the fixed demo phoneme schedule. */
+export default function AvatarScene({
+  modelUrl,
+  visemeSchedule = [],
+  mood = 'neutral',
+  idleClipName,
+  audioLipSync = null,
+}) {
   const meshRef = useRef(null)
   const [ready, setReady] = useState(false)
 
@@ -14,6 +25,8 @@ export default function AvatarScene({ modelUrl, visemeSchedule = [], mood = 'neu
     meshRef.current = mesh
     setReady(Boolean(mesh))
   }
+
+  const useLiveAudio = Boolean(audioLipSync?.isActive)
 
   return (
     <Canvas camera={{ position: [0, 1.5, 2.2], fov: 35 }}>
@@ -28,7 +41,10 @@ export default function AvatarScene({ modelUrl, visemeSchedule = [], mood = 'neu
 
       <CameraRig />
 
-      {ready && <LipSync meshRef={meshRef} schedule={visemeSchedule} />}
+      {ready && useLiveAudio && (
+        <AudioLipSync meshRef={meshRef} getCurrentAmp={audioLipSync.getCurrentAmp} />
+      )}
+      {ready && !useLiveAudio && <LipSync meshRef={meshRef} schedule={visemeSchedule} />}
       {ready && <Expressions meshRef={meshRef} mood={mood} />}
     </Canvas>
   )

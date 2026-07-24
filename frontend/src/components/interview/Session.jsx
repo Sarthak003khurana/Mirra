@@ -75,7 +75,12 @@ export default function Session({ sessionId }) {
     <div className="mx-auto max-w-3xl space-y-6">
       <Controls status={status} isConnected={isConnected} onStart={handleStart} onEnd={handleEnd} />
 
-      <QuestionDisplay question={currentQuestion} isAvatarSpeaking={isAvatarSpeaking} />
+      <QuestionDisplay
+        question={currentQuestion}
+        isAvatarSpeaking={isAvatarSpeaking}
+        sessionId={sessionId}
+        accessToken={accessToken}
+      />
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-surface p-4">

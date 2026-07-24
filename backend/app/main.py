@@ -5,7 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
-from app.routers import auth
+from app import models  # noqa: F401 - ensures every model is registered on Base.metadata
+from app.routers import auth, interview, report, resume
 from app.websocket.interview_handler import handle_interview_socket
 
 
@@ -27,6 +28,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(resume.router)
+app.include_router(interview.router)
+app.include_router(report.router)
 
 
 @app.websocket("/ws/interview")

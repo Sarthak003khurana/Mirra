@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useMorphTargets } from '../hooks/useMorphTargets'
-import { visemeWeights } from '../utils/visemeMapper'
+import { useMorphTargets } from '../../hooks/useMorphTargets'
+import { visemeWeights } from '../../utils/visemeMapper'
 
 /** Plays a viseme schedule (see visemeMapper.buildVisemeSchedule) against the
  * mesh's viseme_* morph targets, timed from when the schedule was set. */

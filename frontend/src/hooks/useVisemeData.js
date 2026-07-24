@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** Joins the backend's /ws/interview socket (same room the rest of the app
- * uses - see frontend/src/hooks/useWebSocket.js and
- * backend/app/websocket/interview_handler.py for the shared {event, payload}
- * envelope and join_session shape) and turns the two events the voice-bot
- * streams into this room into audio playback + a live lip-sync amplitude:
+ * uses - see useWebSocket.js and backend/app/websocket/interview_handler.py
+ * for the shared {event, payload} envelope and join_session shape) and turns
+ * the two events the voice-bot streams into this room into audio playback +
+ * a live lip-sync amplitude:
  *
  *  - `tts_audio`   { audio_b64, format }        -> decoded and played here;
- *                                                   this iframe is the one
- *                                                   producing sound.
+ *                                                   the avatar panel is what
+ *                                                   actually produces sound.
  *  - `viseme_data` { frames: [{ t, amp }, ...] } -> an RMS envelope of that
  *                                                   same audio, sampled every
  *                                                   ~50ms. `getCurrentAmp()`
@@ -17,8 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  *                                                   playing audio's
  *                                                   currentTime.
  *
- * No-op (returns isActive: false) when `sessionId` is absent, so `npm run
- * dev` without a backend can fall back to the demo viseme schedule instead. */
+ * No-op (returns isActive: false) when `sessionId` is absent. */
 export function useVisemeData({ wsUrl = 'ws://localhost:8000', sessionId, token } = {}) {
   const [connected, setConnected] = useState(false)
   const audioElRef = useRef(null)

@@ -2,7 +2,7 @@ import { Suspense, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows, Environment } from '@react-three/drei'
 import AudioLipSync from './AudioLipSync'
-import AvatarModel from './AvatarModel'
+import AvatarWithFallback from './AvatarWithFallback'
 import CameraRig from './CameraRig'
 import Expressions from './Expressions'
 import LipSync from './LipSync'
@@ -11,13 +11,7 @@ import LipSync from './LipSync'
  * `audioLipSync.isActive` (a real session is joined), lip-sync is driven live
  * from the voice-bot's audio + amplitude envelope via AudioLipSync instead of
  * the fixed demo phoneme schedule. */
-export default function AvatarScene({
-  modelUrl,
-  visemeSchedule = [],
-  mood = 'neutral',
-  idleClipName,
-  audioLipSync = null,
-}) {
+export default function AvatarScene({ visemeSchedule = [], mood = 'neutral', idleClipName, audioLipSync = null }) {
   const meshRef = useRef(null)
   const [ready, setReady] = useState(false)
 
@@ -35,7 +29,7 @@ export default function AvatarScene({
 
       <Suspense fallback={null}>
         <Environment preset="studio" />
-        <AvatarModel url={modelUrl} onReady={handleReady} idleClipName={idleClipName} />
+        <AvatarWithFallback onReady={handleReady} idleClipName={idleClipName} />
         <ContactShadows position={[0, 0, 0]} opacity={0.35} blur={2} />
       </Suspense>
 
